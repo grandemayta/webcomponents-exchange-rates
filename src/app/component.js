@@ -1,27 +1,84 @@
 import { LitElement, html } from '@polymer/lit-element';
+import { currencies, debounce, httpWrapper } from './utils';
 
 export default class MyComponent extends LitElement {
   static get properties() {
     return {
-      name: { type: String }
+      rates: { type: Array },
+      amountFrom: { type: Number },
+      amountTo: { type: Number }
     };
   }
 
   constructor() {
     super();
-    this.placeholder = 'Type your name...';
+    this.baseUrl = 'https://api.exchangeratesapi.io';
+    this.amountFrom = 1;
+    this.amountTo = null;
+    this.currencies = currencies;
+    this.currencyFrom = 'EUR';
+    this.currencyTo = 'USD';
   }
 
-  handleKeyUp(value) {
-    if (value !== '') {
-      this.name = value;
+  firstUpdated() {
+    this.calculate('from', this.currencyFrom, this.currencyTo, this.amountFrom);
+  }
+
+  calculate(type, base, currency, amount) {
+    let qs = `base=${base}&symbols=${currency}`;
+    httpWrapper(`${this.baseUrl}/latest?${qs}`, data => {
+      const value = parseFloat(parseFloat(amount * data.rates[currency]).toFixed(2));
+      if (type === 'from') this.amountTo = value;
+      else this.amountFrom = value;
+    });
+  }
+
+  handleKeyUp(type) {
+    let amount = parseFloat(this.shadowRoot.querySelector(`input[name=${type}]`).value);
+    if (type === 'iptFrom') {
+      this.calculate('from', this.currencyFrom, this.currencyTo, amount);
+    } else {
+      this.calculate('to', this.currencyTo, this.currencyFrom, amount);
     }
+  }
+
+  handleSelect(e) {
+    e.preventDefault();
+    if (e.target.name === 'slcFrom') {
+      this.currencyFrom = e.target.value;
+    } else {
+      this.currencyTo = e.target.value;
+    }
+    this.calculate('from', this.currencyFrom, this.currencyTo, this.amountFrom);
+  }
+
+  selectsTpl(type, selected) {
+    return html`
+      <select @change=${e => this.handleSelect(e)} name=${type}>
+        ${this.currencies.map(currency => {
+          return html`
+            <option ?selected=${currency === selected} .value=${currency}>
+              ${currency}
+            </option>
+          `;
+        })}
+      </select>
+    `;
+  }
+
+  inputTpl(type, amount) {
+    return html`
+      <input name=${type}
+        @keyup=${debounce(this.handleKeyUp.bind(this, type), 400)} 
+        .value=${amount}
+        type="text">
+    `;
   }
 
   render() {
     return html`
       <style>
-        section, h1, h2, input {
+        section, h1, h2 {
           margin: 0;
           padding: 0 0 20px 0;
         }
@@ -30,17 +87,16 @@ export default class MyComponent extends LitElement {
           background-color: #f0f0f0;
           border-radius: 3px;
         }
-        input {
-          padding: 10px;
-        }
       </style>
       <section>
-        <h1>I'm a Custom Element</h1>
-        <h2>Hi ${this.name}!</h2>
-        <input 
-          @keyup=${e => this.handleKeyUp(e.target.value)} 
-          placeholder=${this.placeholder}
-          type="text">
+        <div>
+          ${this.inputTpl('iptFrom', this.amountFrom)}
+          ${this.selectsTpl('slcFrom', this.currencyFrom)}
+        </div>
+        <div>
+          ${this.inputTpl('iptTo', this.amountTo)}
+          ${this.selectsTpl('slcTo', this.currencyTo)}
+        </div>
       </section>`;
   }
 }
