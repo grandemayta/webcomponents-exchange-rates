@@ -4,7 +4,8 @@ import { currencies, debounce, httpWrapper } from './utils';
 export default class MyComponent extends LitElement {
   static get properties() {
     return {
-      rates: { type: Array },
+      from: { type: String },
+      to: { type: String },
       amountFrom: { type: Number },
       amountTo: { type: Number }
     };
@@ -16,11 +17,13 @@ export default class MyComponent extends LitElement {
     this.amountFrom = 1;
     this.amountTo = null;
     this.currencies = currencies;
-    this.currencyFrom = 'EUR';
-    this.currencyTo = 'USD';
+    this.currencyFrom = '';
+    this.currencyTo = '';
   }
 
   firstUpdated() {
+    this.currencyFrom = this.from;
+    this.currencyTo = this.to;
     this.calculate('from', this.currencyFrom, this.currencyTo, this.amountFrom);
   }
 
