@@ -7,8 +7,8 @@ const dist = path.resolve(__dirname, './dist');
 module.exports = {
   entry: {
     app: [
-      '@webcomponents/webcomponentsjs/webcomponents-bundle.js',
       'whatwg-fetch',
+      '@webcomponents/webcomponentsjs/webcomponents-bundle.js',
       `${src}/app/component.js`
     ]
   },
