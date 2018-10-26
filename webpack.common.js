@@ -8,6 +8,7 @@ module.exports = {
   entry: {
     app: [
       '@webcomponents/webcomponentsjs/webcomponents-bundle.js',
+      'whatwg-fetch',
       `${src}/app/component.js`
     ]
   },

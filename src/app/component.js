@@ -7,7 +7,9 @@ export default class MyComponent extends LitElement {
       currencyFrom: String,
       currencyTo: String,
       amountFrom: Number,
-      amountTo: Number
+      amountTo: Number,
+      labelFrom: String,
+      labelTo: String
     };
   }
 
@@ -20,6 +22,7 @@ export default class MyComponent extends LitElement {
   }
 
   firstUpdated() {
+    this.currencies.sort((a, b) => (a.label > b.label ? 1 : -1));
     this.calculate('from', this.currencyFrom, this.currencyTo, this.amountFrom);
   }
 
@@ -38,6 +41,9 @@ export default class MyComponent extends LitElement {
         this.amountFrom = value;
         this.amountTo = amount;
       }
+
+      this.labelFrom = this.currencies.find(val => val.value === this.currencyFrom).label;
+      this.labelTo = this.currencies.find(val => val.value === this.currencyTo).label;
     });
   }
 
@@ -54,12 +60,14 @@ export default class MyComponent extends LitElement {
 
   handleSelect(e) {
     e.preventDefault();
-    if (e.target.name === 'slcFrom') {
-      if (e.target.value === this.currencyTo) this.currencyTo = this.currencyFrom;
-      this.currencyFrom = e.target.value;
+    const { name, value } = e.target;
+
+    if (name === 'slcFrom') {
+      if (value === this.currencyTo) this.currencyTo = this.currencyFrom;
+      this.currencyFrom = value;
     } else {
-      if (e.target.value === this.currencyFrom) this.currencyFrom = this.currencyTo;
-      this.currencyTo = e.target.value;
+      if (value === this.currencyFrom) this.currencyFrom = this.currencyTo;
+      this.currencyTo = value;
     }
     this.calculate('from', this.currencyFrom, this.currencyTo, this.amountFrom);
   }
@@ -69,8 +77,10 @@ export default class MyComponent extends LitElement {
       <select .name=${type} @change=${this.handleSelect}>
         ${this.currencies.map(currency => {
           return html`
-            <option ?selected=${currency === selected} .value=${currency}>
-              ${currency}
+            <option 
+              ?selected=${currency.value === selected}
+              .value=${currency.value}
+              .label=${currency.label}>
             </option>
           `;
         })}
@@ -104,6 +114,14 @@ export default class MyComponent extends LitElement {
         section {
           margin-bottom: 10px;
         }
+        h1 {
+          font-size: 26px;
+        }
+        h2 {
+          font-size: 16px;
+          font-weight: normal;
+          color: #878787;
+        }
         input {
           padding: 8px 10px;
           text-align: right;
@@ -113,7 +131,7 @@ export default class MyComponent extends LitElement {
           border-radius: 2px;
         }
         select {
-          width: 80px;
+          width: 190px;
           -webkit-appearance: none;
           -moz-appearance: none;
           appearance: none;
@@ -129,6 +147,10 @@ export default class MyComponent extends LitElement {
         }
       </style>
       <main>
+        <section>
+          <h2>${this.amountFrom} ${this.labelFrom} equals</h2>
+          <h1>${this.amountTo} ${this.labelTo}</h1>
+        </section>
         <section>
           ${this.inputTpl('iptFrom', this.amountFrom)}
           ${this.selectsTpl('slcFrom', this.currencyFrom)}
