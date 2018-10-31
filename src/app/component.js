@@ -1,7 +1,7 @@
 import { LitElement, html } from '@polymer/lit-element';
 import { currencies, debounce, httpWrapper } from './utils';
 
-export default class MyComponent extends LitElement {
+export default class ExchangeRates extends LitElement {
   static get properties() {
     return {
       currencyFrom: String,
@@ -97,7 +97,6 @@ export default class MyComponent extends LitElement {
   }
 
   render() {
-    console.log('Performance Test!');
     return html`
       <style>
         main, section, h1, h2, input, select, button {
@@ -183,4 +182,4 @@ export default class MyComponent extends LitElement {
   }
 }
 
-customElements.define('app-my-component', MyComponent);
+customElements.define('gm-exchange-rates', ExchangeRates);
