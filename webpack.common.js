@@ -8,6 +8,7 @@ module.exports = {
   entry: {
     app: [
       'whatwg-fetch',
+      'core-js/fn/symbol',
       '@webcomponents/webcomponentsjs/webcomponents-bundle.js',
       `${src}/app/component.js`
     ]
